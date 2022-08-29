@@ -7,16 +7,16 @@ using UnityEngine;
 public class JumpState : IState
 {
     private Rigidbody2D _rb;
+    [SerializeField]
     private float _force;
     private KnightAnimations _animations;
 
     public string StateName => "Jump";
 
 
-    public void Initialize(Rigidbody2D rigidbody, float force, KnightAnimations animations)
+    public void Initialize(Rigidbody2D rigidbody,  KnightAnimations animations)
     {
         _rb = rigidbody;
-        _force = force;
         _animations = animations;
     }
 

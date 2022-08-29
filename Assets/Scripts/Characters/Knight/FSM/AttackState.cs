@@ -8,13 +8,17 @@ using System.Linq;
 public class AttackState : IState
 {
     private KnightAnimations _animations;
+    [SerializeField]
     private float _distance;
     private Transform _transform;
+    [SerializeField]
     private float _damage;
+    [SerializeField]
     private float _comboWaitTime;
     private Coroutine _comboWaitCoroutine;
     private KnightBrain _context;
     private bool _waiting;
+    [SerializeField]
     private int _maxCombos;
     private int _combo;
     [SerializeField]
@@ -23,18 +27,16 @@ public class AttackState : IState
     public string StateName => "Attack";
     public bool WaitingForCombo => _waiting;
     public int Combo => _combo;
+    public int MaxCombos => _maxCombos;
+    public bool AllCombosExecuted => _combo >= _maxCombos;
 
-    public void Initialize(float distance, KnightAnimations animations, Transform transform, float damage, float comboWaitTime, KnightBrain context, int maxCombos)
+    public void Initialize(KnightAnimations animations, Transform transform,  KnightBrain context)
     {
-        _distance = distance;
         _animations = animations;
         _transform = transform;
-        _damage = damage;
-        _comboWaitTime = comboWaitTime;
         _context = context;
         _animations.CheckHit.AddListener(CheckHit);
         _animations.AttackFinished.AddListener(OnAttackAnimationFinished);
-        _maxCombos = maxCombos;
     }
 
     public void Enter()

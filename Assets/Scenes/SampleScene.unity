@@ -1323,17 +1323,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 5
-  _jumpForce: 7
   _acceleration: 1
   _decceleration: 10
+  _jumpState:
+    _force: 7
   _attackState:
+    _distance: 1.7
+    _damage: 1
+    _comboWaitTime: 1.5
+    _maxCombos: 3
     _yDistanceThreshold: 0.5
   _rollState:
     _force: 5
-  _comboWaitTime: 1.5
-  _attackDistance: 1.7
-  _damage: 1
-  _combosCount: 3
 --- !u!1 &1867226648
 GameObject:
   m_ObjectHideFlags: 0
@@ -1474,11 +1475,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dc8442eac977d74ca2be158cec712c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _spriteGO: {fileID: 2114178242}
   CheckHit:
     m_PersistentCalls:
       m_Calls: []
   AttackFinished:
+    m_PersistentCalls:
+      m_Calls: []
+  RollFinished:
     m_PersistentCalls:
       m_Calls: []
 --- !u!212 &2114178244

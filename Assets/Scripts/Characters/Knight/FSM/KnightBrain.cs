@@ -10,8 +10,6 @@ public class KnightBrain : Context<IState>
     [SerializeField]
     private float _speed;
     [SerializeField]
-    private float _jumpForce;
-    [SerializeField]
     private float _acceleration;
     [SerializeField]
     private float _decceleration;
@@ -30,14 +28,6 @@ public class KnightBrain : Context<IState>
     private Rigidbody2D _rb;
     private BoxCollider2D _collider;
     private KnightAnimations _animations;
-    [SerializeField]
-    private float _comboWaitTime;
-    [SerializeField]
-    private float _attackDistance;
-    [SerializeField]
-    private float _damage;
-    [SerializeField]
-    private int _combosCount = 3;
 
     public IState State => _currentState;
 
@@ -49,8 +39,8 @@ public class KnightBrain : Context<IState>
         _moveLeftState.Initialize(stateName: "Move Left", -_speed, -_acceleration, _rb, _animations);
         _moveRightState.Initialize(stateName: "Move Right", _speed, _acceleration, _rb, _animations);
         _idleState.Initialize(_decceleration, _rb, _animations);
-        _jumpState.Initialize(_rb, _jumpForce, _animations);
-        _attackState.Initialize(_attackDistance, _animations, transform, _damage, _comboWaitTime, this, _combosCount);
+        _jumpState.Initialize(_rb, _animations);
+        _attackState.Initialize(_animations, transform, this);
         _rollState.Initialize(_animations, _rb, this);
     }
 
@@ -111,7 +101,9 @@ public class KnightBrain : Context<IState>
         base.Update();
     }
 
+#if UNITY_EDITOR
     [Button]
+#endif
     public void MoveLeft()
     {
         if (_currentState != _moveLeftState)
@@ -124,7 +116,9 @@ public class KnightBrain : Context<IState>
         }
     }
 
+#if UNITY_EDITOR
     [Button]
+#endif
     public void MoveRight()
     {
         if (_currentState != _moveRightState)
@@ -137,24 +131,30 @@ public class KnightBrain : Context<IState>
         }
     }
 
+#if UNITY_EDITOR
     [Button]
+#endif
     public void Idle()
     {
         if (_currentState != _idleState)
             EnterState(_idleState);
     }
 
+#if UNITY_EDITOR
     [Button]
+#endif
     public void Attack()
     {
         if (_currentState == _attackState && !_attackState.WaitingForCombo) return;
-        if (_currentState == _attackState && _attackState.Combo < _combosCount)
+        if (_currentState == _attackState && !_attackState.AllCombosExecuted)
             _currentState.Enter();
         else if (_currentState != _attackState)
             EnterState(_attackState);
     }
 
+#if UNITY_EDITOR
     [Button]
+#endif
     public void Jump()
     {
         if (_currentState != _jumpState)
@@ -162,7 +162,9 @@ public class KnightBrain : Context<IState>
                 EnterState(_jumpState);
     }
 
+#if UNITY_EDITOR
     [Button]
+#endif
     public void Roll()
     {
         if (_currentState != _rollState)
