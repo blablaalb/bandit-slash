@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class KnightAnimations : MonoBehaviour
 {
@@ -8,11 +9,13 @@ public class KnightAnimations : MonoBehaviour
     private GameObject _spriteGO;
     private Animator _animator;
 
+    public UnityEvent CheckHit;
+    public UnityEvent AttackFinished;
+
     internal void Awake()
     {
         _animator = _spriteGO.GetComponent<Animator>();
     }
-
 
     public void MoveLeft()
     {
@@ -48,9 +51,12 @@ public class KnightAnimations : MonoBehaviour
 
     public void Attack()
     {
-
+        var name = _animator.GetCurrentAnimatorClipInfo(0)[0].clip.name;
+        var next = "Attack1";
+        if (name == "Attack1") next = "Attack2";
+        else if (name == "Attack2") next = "Attack3";
+        _animator.Play(next);
     }
-
 
     private void SetMirrored(bool value)
     {
@@ -58,4 +64,15 @@ public class KnightAnimations : MonoBehaviour
         scale.x = value == true ? -1f : 1f;
         _spriteGO.transform.localScale = scale;
     }
+
+    internal void OnCheckHit()
+    {
+        CheckHit?.Invoke();
+    }
+
+    internal void OnAttackFinished()
+    {
+        AttackFinished?.Invoke();
+    }
+
 }

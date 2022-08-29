@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using PER.Common.FSM;
 using UnityEngine;
 using NaughtyAttributes;
+using System;
 
 public class KnightBrain : Context<IState>
 {
@@ -27,16 +28,27 @@ public class KnightBrain : Context<IState>
     private Rigidbody2D _rb;
     private BoxCollider2D _collider;
     private KnightAnimations _animations;
+    [SerializeField]
+    private float _comboWaitTime;
+    [SerializeField]
+    private float _attackDistance;
+    [SerializeField]
+    private float _damage;
+    [SerializeField]
+    private int _combosCount = 3;
+
+    public IState State => _currentState;
 
     internal void Awake()
     {
         _collider = GetComponent<BoxCollider2D>();
         _rb = GetComponent<Rigidbody2D>();
-        _animations = GetComponent<KnightAnimations>();
+        _animations = GetComponentInChildren<KnightAnimations>();
         _moveLeftState.Initialize(stateName: "Move Left", -_speed, -_acceleration, _rb, _animations);
         _moveRightState.Initialize(stateName: "Move Right", _speed, _acceleration, _rb, _animations);
         _idleState.Initialize(_decceleration, _rb, _animations);
         _jumpState.Initialize(_rb, _jumpForce, _animations);
+        _attackState.Initialize(_attackDistance, _animations, transform, _damage, _comboWaitTime, this, _combosCount);
     }
 
     internal void Start()
@@ -47,6 +59,7 @@ public class KnightBrain : Context<IState>
         InputManager.Instance.RightReleased += OnRightReleased;
         InputManager.Instance.AttackPressed += Attack;
         InputManager.Instance.JumpstPressed += Jump;
+        Idle();
     }
 
     internal void OnDestroy()
@@ -70,7 +83,7 @@ public class KnightBrain : Context<IState>
             var hit = _collider.BoxCastLeft(truncasteHeight: 0.5f);
             if (hit != null)
             {
-                EnterState(_idleState);
+                Idle();
             }
         }
         else if (_currentState == _moveRightState)
@@ -78,7 +91,7 @@ public class KnightBrain : Context<IState>
             var hit = _collider.BoxCastRight(truncasteHeight: 0.5f);
             if (hit != null)
             {
-                EnterState(_idleState);
+                Idle();
             }
         }
         else if (_currentState == _jumpState)
@@ -97,14 +110,26 @@ public class KnightBrain : Context<IState>
     public void MoveLeft()
     {
         if (_currentState != _moveLeftState)
-            EnterState(_moveLeftState);
+        {
+            var hit = _collider.BoxCastLeft(truncasteHeight: 0.5f);
+            if (hit == null)
+            {
+                EnterState(_moveLeftState);
+            }
+        }
     }
 
     [Button]
     public void MoveRight()
     {
         if (_currentState != _moveRightState)
-            EnterState(_moveRightState);
+        {
+            var hit = _collider.BoxCastRight(truncasteHeight: 0.5f);
+            if (hit == null)
+            {
+                EnterState(_moveRightState);
+            }
+        }
     }
 
     [Button]
@@ -117,7 +142,10 @@ public class KnightBrain : Context<IState>
     [Button]
     public void Attack()
     {
-        if (_currentState != _attackState)
+        if (_currentState == _attackState && !_attackState.WaitingForCombo) return;
+        if (_currentState == _attackState && _attackState.Combo < _combosCount)
+            _currentState.Enter();
+        else if (_currentState != _attackState)
             EnterState(_attackState);
     }
 
