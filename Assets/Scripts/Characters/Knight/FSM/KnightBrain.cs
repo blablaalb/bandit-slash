@@ -25,6 +25,8 @@ public class KnightBrain : Context<IState>
     private JumpState _jumpState;
     [SerializeField]
     private AttackState _attackState;
+    [SerializeField]
+    private RollState _rollState;
     private Rigidbody2D _rb;
     private BoxCollider2D _collider;
     private KnightAnimations _animations;
@@ -49,6 +51,7 @@ public class KnightBrain : Context<IState>
         _idleState.Initialize(_decceleration, _rb, _animations);
         _jumpState.Initialize(_rb, _jumpForce, _animations);
         _attackState.Initialize(_attackDistance, _animations, transform, _damage, _comboWaitTime, this, _combosCount);
+        _rollState.Initialize(_animations, _rb, this);
     }
 
     internal void Start()
@@ -58,7 +61,8 @@ public class KnightBrain : Context<IState>
         InputManager.Instance.LeftReleased += OnLeftReleased;
         InputManager.Instance.RightReleased += OnRightReleased;
         InputManager.Instance.AttackPressed += Attack;
-        InputManager.Instance.JumpstPressed += Jump;
+        InputManager.Instance.JumpPressed += Jump;
+        InputManager.Instance.RollPressed += Roll;
         Idle();
     }
 
@@ -71,7 +75,8 @@ public class KnightBrain : Context<IState>
             InputManager.Instance.LeftReleased -= OnLeftReleased;
             InputManager.Instance.RightReleased -= OnRightReleased;
             InputManager.Instance.AttackPressed -= Attack;
-            InputManager.Instance.JumpstPressed -= Jump;
+            InputManager.Instance.JumpPressed -= Jump;
+            InputManager.Instance.RollPressed -= Roll;
         }
         catch { }
     }
@@ -155,6 +160,13 @@ public class KnightBrain : Context<IState>
         if (_currentState != _jumpState)
             if (IsStanding())
                 EnterState(_jumpState);
+    }
+
+    [Button]
+    public void Roll()
+    {
+        if (_currentState != _rollState)
+            EnterState(_rollState);
     }
 
     private bool IsStanding()

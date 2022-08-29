@@ -5,16 +5,15 @@ using UnityEngine.Events;
 
 public class KnightAnimations : MonoBehaviour
 {
-    [SerializeField]
-    private GameObject _spriteGO;
     private Animator _animator;
 
     public UnityEvent CheckHit;
     public UnityEvent AttackFinished;
+    public UnityEvent RollFinished;
 
     internal void Awake()
     {
-        _animator = _spriteGO.GetComponent<Animator>();
+        _animator = GetComponent<Animator>();
     }
 
     public void MoveLeft()
@@ -60,9 +59,9 @@ public class KnightAnimations : MonoBehaviour
 
     private void SetMirrored(bool value)
     {
-        var scale = _spriteGO.transform.localScale;
+        var scale = transform.localScale;
         scale.x = value == true ? -1f : 1f;
-        _spriteGO.transform.localScale = scale;
+        transform.localScale = scale;
     }
 
     internal void OnCheckHit()
@@ -73,6 +72,11 @@ public class KnightAnimations : MonoBehaviour
     internal void OnAttackFinished()
     {
         AttackFinished?.Invoke();
+    }
+
+    internal void OnRollFinished()
+    {
+        RollFinished?.Invoke();
     }
 
 }

@@ -11,7 +11,8 @@ public class InputManager : Singleton<InputManager>
     public event Action RightPressed;
     public event Action RightReleased;
     public event Action AttackPressed;
-    public event Action JumpstPressed;
+    public event Action JumpPressed;
+    public event Action RollPressed;
 
     internal void Update()
     {
@@ -42,7 +43,12 @@ public class InputManager : Singleton<InputManager>
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            JumpstPressed?.Invoke();
+            JumpPressed?.Invoke();
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            RollPressed?.Invoke();
         }
     }
 
