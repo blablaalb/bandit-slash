@@ -8,18 +8,21 @@ public class IdleState : IState
 {
     private float _decceleration;
     private Rigidbody2D _rb;
+    private KnightAnimations _animations;
 
     public string StateName => "Idle";
 
 
-    public void Initialize(float deceleration, Rigidbody2D rigidBody)
+    public void Initialize(float deceleration, Rigidbody2D rigidBody, KnightAnimations animations)
     {
         _decceleration = deceleration;
         _rb = rigidBody;
+        _animations = animations;
     }
 
     public void Enter()
     {
+        _animations.Idle();
     }
 
     public void Exit()

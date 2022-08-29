@@ -9,20 +9,24 @@ public class MoveState : IState
     private float _speed;
     private float _acceleration;
     private Rigidbody2D _rb;
+    private KnightAnimations _animations;
 
     public string StateName { get; set; }
 
 
-    public void Initialize(string stateName, float speed, float acceleration, Rigidbody2D rb)
+    public void Initialize(string stateName, float speed, float acceleration, Rigidbody2D rb, KnightAnimations animations)
     {
+        StateName = stateName;
         _speed = speed;
         _acceleration = acceleration;
         _rb = rb;
-        StateName = stateName;
+        _animations = animations;
     }
 
     public void Enter()
     {
+        if (_speed < 0) _animations.MoveLeft();
+        else _animations.MoveRight();
     }
 
     public void Exit()
