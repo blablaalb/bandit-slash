@@ -7,6 +7,12 @@ public class BanditsPool : GenericPool<BanditPoolMember>
 {
     private int _banditPower;
 
+    override protected void Awake()
+    {
+        _banditPower = 1;
+        base.Awake();
+    }
+
     internal void Start()
     {
         StartCoroutine(BanditPowerCountdown());

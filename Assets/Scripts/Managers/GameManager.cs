@@ -24,17 +24,15 @@ public class GameManager : Singleton<GameManager>
     public BoxCollider2D LeftBound => _leftBound;
     public BoxCollider2D RightBound => _rightBound;
     public float SceneSizeX => Mathf.Abs((RightBound.bounds.center.x - RightBound.bounds.size.x * 0.5f) - (LeftBound.bounds.center.x + LeftBound.bounds.size.x * 0.5f));
+    public event Action BanditKilled;
+    public int Score { get; private set; }
+    public GameStates GameState { get; private set; }
 
     override protected void Awake()
     {
         _banditsPool = FindObjectOfType<BanditsPool>();
         base.Awake();
-    }
-
-    internal void Start()
-    {
-        StartCoroutine(SpawnBandits());
-        Debug.Log(SceneSizeX);
+        Pause();
     }
 
     public IEnumerator SpawnBandits()
@@ -86,6 +84,30 @@ public class GameManager : Singleton<GameManager>
 
     public void OnBanditDied()
     {
+        Score++;
+        BanditKilled?.Invoke();
         SpawnRandomBandit();
     }
+
+    public void Pause()
+    {
+        GameState = GameStates.Pause;
+    }
+
+    public void Begin()
+    {
+        GameState = GameStates.Play;
+        StartCoroutine(SpawnBandits());
+    }
+
+    public void Exit()
+    {
+        Application.Quit();
+    }
+
+    public enum GameStates
+    {
+        Play, Pause
+    }
+
 }

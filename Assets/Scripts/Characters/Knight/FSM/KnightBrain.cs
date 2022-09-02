@@ -32,8 +32,9 @@ public class KnightBrain : Context<IState>
     private KnightAnimations _animations;
     [SerializeField]
     private LayerMask _moveLayerMask;
-    [SerializeField]
     private int _health;
+    [SerializeField]
+    private int _maxHealth;
 
     public IState State => _currentState;
     public float Width => _collider.size.x;
@@ -46,10 +47,12 @@ public class KnightBrain : Context<IState>
             _health = value;
         }
     }
+    public int MaxHealth => _maxHealth;
     public bool Alive => _health > 0;
 
     internal void Awake()
     {
+        Health = _maxHealth;
         _collider = GetComponent<BoxCollider2D>();
         _rb = GetComponent<Rigidbody2D>();
         _animations = GetComponentInChildren<KnightAnimations>();
@@ -92,6 +95,8 @@ public class KnightBrain : Context<IState>
 
     override protected void Update()
     {
+        if (GameManager.Instance.GameState == GameManager.GameStates.Pause) return;
+
         if (_currentState == _moveLeftState)
         {
             var hit = _collider.BoxCastLeft(_moveLayerMask, truncasteHeight: 0.5f);
@@ -125,10 +130,11 @@ public class KnightBrain : Context<IState>
 #endif
     public void MoveLeft()
     {
+        if (GameManager.Instance.GameState == GameManager.GameStates.Pause) return;
         if (_currentState != _moveLeftState)
         {
             var hit = _collider.BoxCastLeft(_moveLayerMask, truncasteHeight: 0.5f);
-            if (hit == null)
+            if (hit == null && Alive)
             {
                 EnterState(_moveLeftState);
             }
@@ -140,10 +146,11 @@ public class KnightBrain : Context<IState>
 #endif
     public void MoveRight()
     {
+        if (GameManager.Instance.GameState == GameManager.GameStates.Pause) return;
         if (_currentState != _moveRightState)
         {
             var hit = _collider.BoxCastRight(_moveLayerMask, truncasteHeight: 0.5f);
-            if (hit == null)
+            if (hit == null && Alive)
             {
                 EnterState(_moveRightState);
             }
@@ -155,7 +162,8 @@ public class KnightBrain : Context<IState>
 #endif
     public void Idle()
     {
-        if (_currentState != _idleState)
+        if (GameManager.Instance.GameState == GameManager.GameStates.Pause) return;
+        if (_currentState != _idleState && Alive)
             EnterState(_idleState);
     }
 
@@ -164,10 +172,11 @@ public class KnightBrain : Context<IState>
 #endif
     public void Attack()
     {
+        if (GameManager.Instance.GameState == GameManager.GameStates.Pause) return;
         if (_currentState == _attackState && !_attackState.WaitingForCombo) return;
         if (_currentState == _attackState && !_attackState.AllCombosExecuted)
             _currentState.Enter();
-        else if (_currentState != _attackState)
+        else if (_currentState != _attackState && Alive)
             EnterState(_attackState);
     }
 
@@ -176,7 +185,8 @@ public class KnightBrain : Context<IState>
 #endif
     public void Jump()
     {
-        if (_currentState != _jumpState)
+        if (GameManager.Instance.GameState == GameManager.GameStates.Pause) return;
+        if (_currentState != _jumpState && Alive)
             if (IsStanding())
                 EnterState(_jumpState);
     }
@@ -186,7 +196,8 @@ public class KnightBrain : Context<IState>
 #endif
     public void Roll()
     {
-        if (_currentState != _rollState)
+        if (GameManager.Instance.GameState == GameManager.GameStates.Pause) return;
+        if (_currentState != _rollState && Alive)
             EnterState(_rollState);
     }
 
@@ -195,12 +206,14 @@ public class KnightBrain : Context<IState>
 #endif
     public void Die()
     {
+        if (GameManager.Instance.GameState == GameManager.GameStates.Pause) return;
         if (_currentState != _dieState)
             EnterState(_dieState);
     }
 
     public void TakeDamage(int damage)
     {
+        if (GameManager.Instance.GameState == GameManager.GameStates.Pause) return;
         if (_currentState != _takeDamageState && _currentState != _dieState && _health > 0)
         {
             _takeDamageState.Damage = damage;
