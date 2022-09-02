@@ -10,6 +10,7 @@ public class KnightAnimations : MonoBehaviour
     public UnityEvent CheckHit;
     public UnityEvent AttackFinished;
     public UnityEvent RollFinished;
+    public UnityEvent TakeDamageFinished;
 
     internal void Awake()
     {
@@ -87,6 +88,11 @@ public class KnightAnimations : MonoBehaviour
     internal void OnRollFinished()
     {
         RollFinished?.Invoke();
+    }
+
+    internal void OnTakeDamageFinished()
+    {
+        TakeDamageFinished?.Invoke();
     }
 
 }

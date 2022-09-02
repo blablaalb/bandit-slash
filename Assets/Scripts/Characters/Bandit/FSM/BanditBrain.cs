@@ -39,6 +39,8 @@ namespace Characters.Bandit.FSM
         /// </summary>
         /// <returns></returns>
         public float LeftRight => -transform.GetChild(0).transform.localScale.x;
+        public string CurrentState => _currentState == null ? "" : _currentState.StateName;
+        public int Power { get { return _attackState.Damage; } set { _attackState.Damage = value; } }
 
         internal void Awake()
         {
@@ -62,9 +64,16 @@ namespace Characters.Bandit.FSM
             {
                 if (transform.DistanceY(_knight.transform) < _maxKnightYDistance)
                 {
-                    if (LookingAtKnight())
+                    if (LookingAtKnight() && _knight.Alive)
                         Attack();
                 }
+            }
+            else
+            {
+                var pos = _knight.transform.position;
+                var dir = (_knight.transform.position - transform.position).normalized.x;
+                pos.x += Random.Range(_knight.Width, GameManager.Instance.SceneSizeX * 0.5f) * dir;
+                Run(pos);
             }
 
             base.Update();
@@ -101,7 +110,7 @@ namespace Characters.Bandit.FSM
         {
             if (Alive && _currentState != _runState)
             {
-                _runState.TargetPosition = position;
+                _runState.SetTargetPosition(position);
                 EnterState(_runState);
             }
         }
@@ -124,8 +133,7 @@ namespace Characters.Bandit.FSM
 
         public bool LookingAtKnight()
         {
-            var direction = _knight.transform.position.x - transform.position.x;
-            return (direction < 0 && LeftRight < 0) || (direction > 0 && LeftRight > 0);
+            return LookingAtSpot(_knight.transform.position);
         }
 
         public void FlipSprite()
@@ -135,11 +143,27 @@ namespace Characters.Bandit.FSM
             _animations.transform.localScale = scale;
         }
 
+        public void LookAtKnight()
+        {
+            if (!LookingAtKnight()) FlipSprite();
+        }
+
+        public bool LookingAtSpot(Vector2 spot)
+        {
+            var direction = spot.x - transform.position.x;
+            return (direction < 0 && LeftRight < 0) || (direction > 0 && LeftRight > 0);
+        }
+
+        public void LookAt(Vector2 spot)
+        {
+            if (!LookingAtSpot(spot)) FlipSprite();
+        }
+
 #if UNITY_EDITOR
         [NaughtyAttributes.Button]
         internal void PrintCurrentState()
         {
-            Debug.Log($"{gameObject.name} state {_currentState.StateName}", gameObject);
+            Debug.Log($"{gameObject.name} state {_currentState.StateName} Alive: {Alive} ", gameObject);
         }
 #endif
     }

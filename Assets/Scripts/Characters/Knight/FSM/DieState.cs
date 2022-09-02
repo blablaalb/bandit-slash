@@ -20,7 +20,7 @@ public class DieState : IState
     public void Enter()
     {
         _animations.Die();
-        throw new NotImplementedException("Die state is not implemented");
+        GameManager.Instance.OnKnightDied();
     }
 
     public void Exit()

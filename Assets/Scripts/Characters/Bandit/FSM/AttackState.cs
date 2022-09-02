@@ -20,6 +20,7 @@ namespace Characters.Bandit.FSM
         private float _distance;
 
         public string StateName => "Attack";
+        public int Damage { get { return _damage; } set { _damage = value; } }
 
         public void Initialize(BanditAnimations animations, BanditBrain context, Transform transform)
         {

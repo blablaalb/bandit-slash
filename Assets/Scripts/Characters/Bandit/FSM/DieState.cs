@@ -30,6 +30,7 @@ namespace Characters.Bandit.FSM
             _rb.simulated = false;
             _collider.enabled = false;
             _animations.StartCoroutine(TimeoutCoroutine());
+            GameManager.Instance.OnBanditDied();
         }
 
         public void Exit()

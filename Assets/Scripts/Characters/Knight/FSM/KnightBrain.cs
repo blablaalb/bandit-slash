@@ -25,12 +25,28 @@ public class KnightBrain : Context<IState>
     private RollState _rollState;
     [SerializeField]
     private DieState _dieState;
+    [SerializeField]
+    private TakeDamageState _takeDamageState;
     private Rigidbody2D _rb;
     private BoxCollider2D _collider;
     private KnightAnimations _animations;
+    [SerializeField]
+    private LayerMask _moveLayerMask;
+    [SerializeField]
+    private int _health;
 
     public IState State => _currentState;
     public float Width => _collider.size.x;
+    public int Health
+    {
+        get { return _health; }
+        set
+        {
+            if (value < 0) value = 0;
+            _health = value;
+        }
+    }
+    public bool Alive => _health > 0;
 
     internal void Awake()
     {
@@ -44,6 +60,7 @@ public class KnightBrain : Context<IState>
         _attackState.Initialize(_animations, transform, this);
         _rollState.Initialize(_animations, _rb, this);
         _dieState.Initialize(_animations);
+        _takeDamageState.Initialize(_animations, this);
     }
 
     internal void Start()
@@ -77,7 +94,7 @@ public class KnightBrain : Context<IState>
     {
         if (_currentState == _moveLeftState)
         {
-            var hit = _collider.BoxCastLeft(truncasteHeight: 0.5f);
+            var hit = _collider.BoxCastLeft(_moveLayerMask, truncasteHeight: 0.5f);
             if (hit != null)
             {
                 Idle();
@@ -85,7 +102,7 @@ public class KnightBrain : Context<IState>
         }
         else if (_currentState == _moveRightState)
         {
-            var hit = _collider.BoxCastRight(truncasteHeight: 0.5f);
+            var hit = _collider.BoxCastRight(_moveLayerMask, truncasteHeight: 0.5f);
             if (hit != null)
             {
                 Idle();
@@ -110,7 +127,7 @@ public class KnightBrain : Context<IState>
     {
         if (_currentState != _moveLeftState)
         {
-            var hit = _collider.BoxCastLeft(truncasteHeight: 0.5f);
+            var hit = _collider.BoxCastLeft(_moveLayerMask, truncasteHeight: 0.5f);
             if (hit == null)
             {
                 EnterState(_moveLeftState);
@@ -125,7 +142,7 @@ public class KnightBrain : Context<IState>
     {
         if (_currentState != _moveRightState)
         {
-            var hit = _collider.BoxCastRight(truncasteHeight: 0.5f);
+            var hit = _collider.BoxCastRight(_moveLayerMask, truncasteHeight: 0.5f);
             if (hit == null)
             {
                 EnterState(_moveRightState);
@@ -182,12 +199,13 @@ public class KnightBrain : Context<IState>
             EnterState(_dieState);
     }
 
-#if UNITY_EDITOR
-    [Button]
-#endif
     public void TakeDamage(int damage)
     {
-        throw new NotImplementedException("State not implemented");
+        if (_currentState != _takeDamageState && _currentState != _dieState && _health > 0)
+        {
+            _takeDamageState.Damage = damage;
+            EnterState(_takeDamageState);
+        }
     }
 
     private bool IsStanding()

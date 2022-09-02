@@ -12,8 +12,6 @@ namespace Characters.Bandit.FSM
     public class RunState : IState
     {
         [SerializeField]
-        private FloatRange _distanceRange;
-        [SerializeField]
         private float _speed;
         private KnightBrain _knight;
         private Transform _transform;
@@ -25,9 +23,10 @@ namespace Characters.Bandit.FSM
         [SerializeField]
         private float _stopThreshold;
         private BanditBrain _context;
+        private GameObject _placeholder;
 
         public string StateName => "Run";
-        public Vector2 TargetPosition { get; set; }
+        public Vector2 TargetPosition { get; private set; }
 
         public void Initialize(Transform transform, BoxCollider2D collider, BanditAnimations animations, Rigidbody2D rb, BanditBrain context)
         {
@@ -45,11 +44,14 @@ namespace Characters.Bandit.FSM
 
         public void Enter()
         {
+            _context.LookAt(TargetPosition);
             _animations.Run();
         }
 
         public void Exit()
         {
+            if (_placeholder != null)
+                _placeholder.SetActive(false);
         }
 
         public void OnFixedUpdate()
@@ -68,6 +70,7 @@ namespace Characters.Bandit.FSM
             }
             else
             {
+                _placeholder.SetActive(false);
                 _context.Idle();
             }
         }
@@ -122,9 +125,14 @@ namespace Characters.Bandit.FSM
             var boxWidth = _collider.size.x;
             var size = new Vector2(boxWidth, boxHeight);
             var point = new Vector2(spot.x, spot.y + boxHeight * 0.5f);
-            var layerMask = LayerMask.GetMask("Knight", "Bandit");
-            var collision = Physics2D.OverlapBox(point, size, 0f, layerMask);
-            if (collision == null)
+            var layerMask = LayerMask.GetMask("Knight", "Bandit", "Bandit Placeholder");
+            var collisions = Physics2D.OverlapBoxAll(point, size, 0, layerMask);
+            collisions = collisions.Where(c =>
+            {
+                var bandit = c.GetComponent<BanditBrain>();
+                return bandit == null || bandit.CurrentState == "Attack" || bandit.CurrentState == "Idle";
+            }).ToArray();
+            if (collisions == null || collisions.Length == 0)
             {
                 DebugHelper.Drawer.Instance.DrawCube(point, size, color: Color.green, time: 1f);
                 return true;
@@ -136,5 +144,31 @@ namespace Characters.Bandit.FSM
             }
         }
 
+        public void SetTargetPosition(Vector2 position)
+        {
+            position.x = ClampXWithinScene(position.x);
+            if (_placeholder == null)
+            {
+                _placeholder = new GameObject();
+                var collider = _placeholder.AddComponent<BoxCollider2D>();
+                collider.size = _collider.size;
+                _placeholder.layer = LayerMask.NameToLayer("Bandit Placeholder");
+                _placeholder.name = "Bandit Placeholder";
+            }
+            else
+            {
+                _placeholder.gameObject.SetActive(true);
+            }
+            position.y += _collider.size.y * 0.5f;
+            _placeholder.transform.position = position;
+            TargetPosition = position;
+        }
+
+        public float ClampXWithinScene(float x)
+        {
+            var min = GameManager.Instance.LeftBound.bounds.center.x + GameManager.Instance.LeftBound.size.x * 0.5f + _collider.size.x * 0.5f;
+            var max = GameManager.Instance.RightBound.bounds.center.x - GameManager.Instance.RightBound.size.x * 0.5f - _collider.size.x * 0.5f;
+            return Mathf.Clamp(x, min, max);
+        }
     }
 }
