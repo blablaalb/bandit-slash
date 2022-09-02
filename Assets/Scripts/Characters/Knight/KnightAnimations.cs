@@ -57,6 +57,16 @@ public class KnightAnimations : MonoBehaviour
         _animator.Play(next);
     }
 
+    public void Die()
+    {
+        _animator.Play("DIe");
+    }
+
+    public void Damage()
+    {
+        _animator.Play("Damage");
+    }
+
     private void SetMirrored(bool value)
     {
         var scale = transform.localScale;

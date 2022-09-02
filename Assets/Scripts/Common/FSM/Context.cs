@@ -13,7 +13,7 @@ namespace PER.Common.FSM
                 ExitCurrentState();
             }
             _currentState = state;
-            Debug.Log($"<color=green>Entered</color> {_currentState.StateName}");
+            Debug.Log($"{gameObject.name} <color=green>Entered</color> {_currentState.StateName}", gameObject);
             _currentState.Enter();
         }
 
@@ -32,7 +32,7 @@ namespace PER.Common.FSM
             if (_currentState != null)
             {
                 _currentState?.Exit();
-                Debug.Log($"<color=red>Exited</color> {_currentState.StateName}");
+                Debug.Log($"{gameObject.name} <color=red>Exited</color> {_currentState.StateName}", gameObject);
             }
         }
     }

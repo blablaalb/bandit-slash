@@ -6,6 +6,7 @@ using UnityEngine;
 [System.Serializable]
 public class IdleState : IState
 {
+    [SerializeField]
     private float _decceleration;
     private Rigidbody2D _rb;
     private KnightAnimations _animations;
@@ -13,9 +14,8 @@ public class IdleState : IState
     public string StateName => "Idle";
 
 
-    public void Initialize(float deceleration, Rigidbody2D rigidBody, KnightAnimations animations)
+    public void Initialize( Rigidbody2D rigidBody, KnightAnimations animations)
     {
-        _decceleration = deceleration;
         _rb = rigidBody;
         _animations = animations;
     }

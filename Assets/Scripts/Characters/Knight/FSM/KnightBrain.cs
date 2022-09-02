@@ -12,8 +12,6 @@ public class KnightBrain : Context<IState>
     [SerializeField]
     private float _acceleration;
     [SerializeField]
-    private float _decceleration;
-    [SerializeField]
     private MoveState _moveLeftState;
     [SerializeField]
     private MoveState _moveRightState;
@@ -25,11 +23,14 @@ public class KnightBrain : Context<IState>
     private AttackState _attackState;
     [SerializeField]
     private RollState _rollState;
+    [SerializeField]
+    private DieState _dieState;
     private Rigidbody2D _rb;
     private BoxCollider2D _collider;
     private KnightAnimations _animations;
 
     public IState State => _currentState;
+    public float Width => _collider.size.x;
 
     internal void Awake()
     {
@@ -38,10 +39,11 @@ public class KnightBrain : Context<IState>
         _animations = GetComponentInChildren<KnightAnimations>();
         _moveLeftState.Initialize(stateName: "Move Left", -_speed, -_acceleration, _rb, _animations);
         _moveRightState.Initialize(stateName: "Move Right", _speed, _acceleration, _rb, _animations);
-        _idleState.Initialize(_decceleration, _rb, _animations);
+        _idleState.Initialize(_rb, _animations);
         _jumpState.Initialize(_rb, _animations);
         _attackState.Initialize(_animations, transform, this);
         _rollState.Initialize(_animations, _rb, this);
+        _dieState.Initialize(_animations);
     }
 
     internal void Start()
@@ -169,6 +171,23 @@ public class KnightBrain : Context<IState>
     {
         if (_currentState != _rollState)
             EnterState(_rollState);
+    }
+
+#if UNITY_EDITOR
+    [Button]
+#endif
+    public void Die()
+    {
+        if (_currentState != _dieState)
+            EnterState(_dieState);
+    }
+
+#if UNITY_EDITOR
+    [Button]
+#endif
+    public void TakeDamage(int damage)
+    {
+        throw new NotImplementedException("State not implemented");
     }
 
     private bool IsStanding()

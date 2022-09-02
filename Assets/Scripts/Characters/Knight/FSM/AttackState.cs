@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using PER.Common.FSM;
 using UnityEngine;
 using System.Linq;
+using Characters.Bandit.FSM;
 
 [System.Serializable]
 public class AttackState : IState
@@ -12,7 +13,7 @@ public class AttackState : IState
     private float _distance;
     private Transform _transform;
     [SerializeField]
-    private float _damage;
+    private int _damage;
     [SerializeField]
     private float _comboWaitTime;
     private Coroutine _comboWaitCoroutine;
@@ -64,7 +65,7 @@ public class AttackState : IState
 
     private void CheckHit()
     {
-        var bandits = GameObject.FindObjectsOfType<BanditController>();
+        var bandits = GameObject.FindObjectsOfType<BanditBrain>();
         var inRange = bandits.Where(b => Mathf.Abs(b.transform.position.y - _transform.position.y) <= _yDistanceThreshold).Where(b => Vector3.Distance(b.transform.position, _transform.position) <= _distance).Where(b =>
         {
             var x = b.transform.position.x > _transform.position.x ? 1 : -1;
@@ -72,7 +73,7 @@ public class AttackState : IState
         });
         foreach (var bandit in inRange)
         {
-            bandit.TakeHit(_damage);
+            bandit.TakeDamage(_damage);
         }
     }
 
