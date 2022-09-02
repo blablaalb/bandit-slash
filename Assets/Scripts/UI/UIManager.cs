@@ -4,16 +4,44 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
+    internal void Start()
+    {
+        GameManager.Instance.Knighdied += ShowGameoverScreen;
+    }
+
+    internal void OnDestroy()
+    {
+        try
+        {
+            GameManager.Instance.Knighdied -= ShowGameoverScreen;
+        }
+        catch { }
+    }
+
     [SerializeField]
-    private GameObject _pauseScreen;
+    private GameObject _startScreen;
+    [SerializeField]
+    private GameObject _gameOverScreen;
 
-    public void HidePauseScreen()
+    public void HideStartScreen()
     {
-        _pauseScreen.gameObject.SetActive(false);
+        _startScreen.gameObject.SetActive(false);
     }
 
-    public void ShowPauseScreen()
+    public void ShowStartScreen()
     {
-        _pauseScreen.gameObject.SetActive(true);
+        _startScreen.gameObject.SetActive(true);
     }
+
+    public void HideGameoverScreen()
+    {
+        _gameOverScreen.gameObject.SetActive(false);
+    }
+
+    public void ShowGameoverScreen()
+    {
+        _gameOverScreen.gameObject.SetActive(true);
+    }
+
+
 }

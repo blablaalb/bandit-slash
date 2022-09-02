@@ -6,6 +6,7 @@ using PER.Common;
 using UnityEngine;
 using System.Linq;
 using Characters.Bandit;
+using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -25,6 +26,7 @@ public class GameManager : Singleton<GameManager>
     public BoxCollider2D RightBound => _rightBound;
     public float SceneSizeX => Mathf.Abs((RightBound.bounds.center.x - RightBound.bounds.size.x * 0.5f) - (LeftBound.bounds.center.x + LeftBound.bounds.size.x * 0.5f));
     public event Action BanditKilled;
+    public event Action Knighdied;
     public int Score { get; private set; }
     public GameStates GameState { get; private set; }
 
@@ -54,6 +56,12 @@ public class GameManager : Singleton<GameManager>
         return bandit;
     }
 
+    private IEnumerator SpawnRandomBanditCoroutine(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SpawnRandomBandit();
+    }
+
     private BanditBrain SpawnBanditRight()
     {
         var bandit = _banditsPool.Get().BanditBrain;
@@ -80,13 +88,14 @@ public class GameManager : Singleton<GameManager>
 
     public void OnKnightDied()
     {
+        Knighdied?.Invoke();
     }
 
     public void OnBanditDied()
     {
         Score++;
         BanditKilled?.Invoke();
-        SpawnRandomBandit();
+        StartCoroutine(SpawnRandomBanditCoroutine(1f));
     }
 
     public void Pause()
@@ -103,6 +112,12 @@ public class GameManager : Singleton<GameManager>
     public void Exit()
     {
         Application.Quit();
+    }
+
+    public void Restart()
+    {
+        var scene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(scene.buildIndex);
     }
 
     public enum GameStates
