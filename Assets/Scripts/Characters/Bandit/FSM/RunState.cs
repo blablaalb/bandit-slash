@@ -134,12 +134,16 @@ namespace Characters.Bandit.FSM
             }).ToArray();
             if (collisions == null || collisions.Length == 0)
             {
+#if UNITY_EDITOR
                 DebugHelper.Drawer.Instance.DrawCube(point, size, color: Color.green, time: 1f);
+#endif
                 return true;
             }
             else
             {
+#if UNITY_EDITOR
                 DebugHelper.Drawer.Instance.DrawCube(point, size, color: Color.red, time: 1f);
+#endif
                 return false;
             }
         }

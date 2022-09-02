@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
 using DebugHelper;
+#endif
 
 public static class Physics2DExtensions
 {
@@ -19,7 +21,9 @@ public static class Physics2DExtensions
         var origin = collider.bounds.center;
         origin.x -= collider.size.x * 0.5f + size.x * 0.5f;
         var hit = Physics2D.OverlapBox(origin, size, 0f, layerMask);
+#if UNITY_EDITOR
         Drawer.Instance.DrawCube(origin, size, color: Color.red, time: Time.deltaTime);
+#endif
         if (hit != null) Debug.Log($"Left hit: {hit.name}", hit);
         return hit;
     }
@@ -38,7 +42,9 @@ public static class Physics2DExtensions
         var origin = collider.bounds.center;
         origin.x += collider.size.x * 0.5f + size.x * 0.5f;
         var hit = Physics2D.OverlapBox(origin, size, 0f, layerMask);
+#if UNITY_EDITOR
         Drawer.Instance.DrawCube(origin, size, color: Color.red, time: Time.deltaTime);
+#endif
         if (hit != null) Debug.Log($"Right hit: {hit.name}", hit);
         return hit;
     }
